@@ -12,9 +12,14 @@ import (
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
+// HTTPDoer represents any struct that is capable of executing `Do`
+type HTTPDoer interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 type GQLClient struct {
 	endpoint   string
-	httpClient *http.Client
+	httpClient HTTPDoer
 	debug      bool
 }
 
@@ -26,7 +31,7 @@ func WithDebug() Option {
 	}
 }
 
-func NewGQLClient(endpoint string, httpClient *http.Client, opts ...Option) *GQLClient {
+func NewGQLClient(endpoint string, httpClient HTTPDoer, opts ...Option) *GQLClient {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
@@ -42,11 +47,11 @@ func NewGQLClient(endpoint string, httpClient *http.Client, opts ...Option) *GQL
 	return client
 }
 
-func (c *GQLClient) SetHttpClient(httpClient *http.Client) {
+func (c *GQLClient) SetHttpClient(httpClient HTTPDoer) {
 	c.httpClient = httpClient
 }
 
-func (c *GQLClient) GetHttpClient() *http.Client {
+func (c *GQLClient) GetHttpClient() HTTPDoer {
 	return c.httpClient
 }
 
